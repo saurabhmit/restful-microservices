@@ -2,6 +2,7 @@ package com.spboot.restfulmicroservices.service.impl;
 
 import com.spboot.restfulmicroservices.dto.UserDto;
 import com.spboot.restfulmicroservices.entity.User;
+import com.spboot.restfulmicroservices.exception.EmailAlreadyExistsException;
 import com.spboot.restfulmicroservices.exception.ResourceNotFoundException;
 import com.spboot.restfulmicroservices.mapper.UserMapper;
 import com.spboot.restfulmicroservices.repository.UserRepository;
@@ -24,6 +25,10 @@ public class UserServiceImpl implements UserService {
     public UserDto createUser(UserDto userDto) {
         //convert UserDto to user jpa Entity
         //User user = UserMapper.mapToUser(userDto);
+        Optional<User> optionalUser = userRepository.findByEmail(userDto.getEmail());
+        if(optionalUser.isPresent()){
+            throw new EmailAlreadyExistsException("Email Already Exists in the DB for the user");
+        }
         User user = modelMapper.map(userDto,User.class);
         User savedUser = userRepository.save(user);
      //  Convert User Jpa entity to UserDto
